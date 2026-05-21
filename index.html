@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>網路連線監控工具 | 即時防護 · 惡意連線偵測</title>
+    <!-- 使用現代、乾淨的字體與風格 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #0B1120 0%, #0a0f1a 100%);
+            color: #eef2ff;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* 導航欄 (簡潔) */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 1.7rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #C084FC, #60A5FA);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .logo span {
+            background: none;
+            -webkit-background-clip: unset;
+            color: #94a3b8;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            color: #60A5FA;
+        }
+
+        .btn-outline {
+            border: 1px solid #3b82f6;
+            background: transparent;
+            padding: 6px 18px;
+            border-radius: 40px;
+            color: #60A5FA;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: #1e40af30;
+            border-color: #60a5fa;
+        }
+
+        /* 主要區塊 */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 70px 0 60px;
+        }
+
+        .badge {
+            background: #1e293b;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #a5f3fc;
+            display: inline-block;
+            margin-bottom: 28px;
+            letter-spacing: 0.3px;
+            backdrop-filter: blur(4px);
+            border: 1px solid #334155;
+        }
+
+        .hero h1 {
+            font-size: 3.3rem;
+            font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(to right, #F0F9FF, #A5D8FF, #C084FC);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            max-width: 900px;
+        }
+
+        .hero .sub {
+            font-size: 1.2rem;
+            color: #9ca3af;
+            max-width: 700px;
+            margin: 24px 0 32px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 18px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            padding: 12px 32px;
+            border-radius: 40px;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            transition: 0.2s;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #3b82f6;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(4px);
+            border: 1px solid #334155;
+            padding: 12px 32px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #cbd5e6;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: #60a5fa;
+            color: #e0e7ff;
+        }
+
+        /* 功能格狀 */
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 48px;
+            background: linear-gradient(135deg, #E2E8F0, #A5B4FC);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 28px;
+            margin: 60px 0 40px;
+        }
+
+        .feature-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            border-radius: 28px;
+            padding: 28px 22px;
+            border: 1px solid #2d3a5e;
+            transition: all 0.25s;
+        }
+
+        .feature-card:hover {
+            border-color: #3b82f6;
+            background: #0f172ad9;
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        /* 安全徽章 */
+        .stats {
+            background: linear-gradient(95deg, #0f172a, #111827);
+            border-radius: 48px;
+            padding: 48px 32px;
+            margin: 60px 0;
+            text-align: center;
+            border: 1px solid #2d3a5e;
+        }
+
+        .stats h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .stats p {
+            max-width: 640px;
+            margin: 16px auto 0;
+            color: #9ca3af;
+        }
+
+        /* 下載 / 聯絡區塊 */
+        .contact-card {
+            background: radial-gradient(circle at 20% 30%, #111827, #020617);
+            border-radius: 40px;
+            padding: 48px 32px;
+            text-align: center;
+            margin: 40px 0 70px;
+            border: 1px solid #334155;
+        }
+
+        .contact-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            margin-top: 32px;
+        }
+
+        .contact-item {
+            background: #1e293b;
+            border-radius: 60px;
+            padding: 12px 28px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            transition: 0.2s;
+            text-decoration: none;
+            color: #f1f5f9;
+            border: 1px solid #475569;
+        }
+
+        .contact-item:hover {
+            background: #2d3a5e;
+            border-color: #60a5fa;
+            transform: scale(1.02);
+        }
+
+        .discord-icon, .mail-icon {
+            font-size: 1.4rem;
+        }
+
+        footer {
+            border-top: 1px solid #1e293b;
+            padding: 32px 0;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 700px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .section-title {
+                font-size: 1.7rem;
+            }
+            .navbar {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 導航區塊 -->
+    <div class="navbar">
+        <div class="logo">🛡️ NetMonitor<span> | 連線偵測專家</span></div>
+        <div class="nav-links">
+            <a href="#features">核心功能</a>
+            <a href="#stats">威脅分析</a>
+            <a href="#contact" class="btn-outline">📢 取得工具</a>
+        </div>
+    </div>
+
+    <!-- HERO 主視覺 -->
+    <div class="hero">
+        <div class="badge">⚡ 即時可疑連線偵測 · 全自動防護</div>
+        <h1>掌握每一條連線<br>惡意IP無所遁形</h1>
+        <div class="sub">自動監控 TCP/UDP 連線、暴力破解偵測、DDoS 早期預警。<br>完全免費，輕量高效，適合遊戲玩家與伺服器管理者。</div>
+        <div class="btn-group">
+            <a href="#contact" class="btn-primary">💬 免費下載 & 回饋</a>
+            <a href="#features" class="btn-secondary">✨ 探索功能</a>
+        </div>
+    </div>
+
+    <!-- 特色功能 grid -->
+    <div id="features">
+        <div class="section-title">⚙️ 強大而直覺的核心監控</div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📡</div>
+                <h3>全連線列表</h3>
+                <p>即時顯示 TCP/UDP 連線，包含程式名稱、PID、本機/遠端位址與連接埠狀態，每3秒自動刷新。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚠️</div>
+                <h3>風險標記系統</h3>
+                <p>【高風險】可疑路徑／異常程式、(中風險) 非標準連接埠或未知程式，一目了然。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>同IP攻擊偵測</h3>
+                <p>自動偵測單一IP超過10次連線（連接埠掃描/暴力破解），並寫入日誌即時發出警示音效。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>DDoS 分散式攻擊預警</h3>
+                <p>分析總體外部連線，當短時間內大量IP連線且可疑比例過高，立刻發出預警。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>DLL 注入檢測</h3>
+                <p>監控系統核心進程 (svchost, lsass, explorer等) 是否載入可疑DLL，揪出隱藏威脅。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <h3>IP 地理位置 & VirusTotal 查詢</h3>
+                <p>一鍵查詢連線 IP 所屬國家/ISP，並整合 VirusTotal 快速判定信譽，揪出高風險國家來源。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✋</div>
+                <h3>一鍵封鎖 / 終止程式</h3>
+                <p>直接封鎖惡意 IP 至防火牆，或強制終止可疑進程，反應迅速。</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🧹</div>
+                <h3>智慧白名單 + 自動清理</h3>
+                <p>可自訂信任 IP / 信任程式，降低誤報；超過30天日誌自動清理，輕量無負擔。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 統計/安全績效區塊 -->
+    <div id="stats" class="stats">
+        <h2>🔒 主動防禦 · 即時可視化</h2>
+        <p>不論是遊戲反作弊環境、個人防火牆補強，或是伺服器維運，<br>NetMonitor 提供低延遲、高鑑別率的連線行為分析，並將可疑行為記錄至「可疑連線紀錄.txt」。</p>
+        <p style="margin-top: 20px; font-size: 0.9rem;">⭐ 支援台灣/中文環境，獨立執行檔無須安裝，全面相容 Windows 7 ~ Windows 11。</p>
+    </div>
+
+    <!-- 托盤/特殊功能區塊 (增強說明) -->
+    <div class="features-grid" style="margin-top: 0;">
+        <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>托盤快速統計</h3>
+            <p>右鍵托盤圖示 → 「可疑連線統計」，一鍵取得整體連線風險比例，智能分析威脅等級。</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <h3>Hosts 防禦 & 惡意域名封鎖</h3>
+            <p>內建數十個廣告/追蹤/惡意域名黑名單，自動寫入hosts封鎖，保護瀏覽隱私。</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>低資源佔用</h3>
+            <p>基於 AHK 精簡編寫，記憶體佔用低，不影響遊戲體驗，並已優化多執行緒排隊機制。</p>
+        </div>
+    </div>
+
+    <!-- 聯絡 & 下載區塊 (強調 Discord & Email) -->
+    <div id="contact" class="contact-card">
+        <h3>📢 獲取最新版本 · 技術反饋</h3>
+        <p style="margin-top: 8px;">專注網路安全 — 完全免費，歡迎加入社群討論、回報問題或提出建議。</p>
+        <div class="contact-links">
+            <a href="https://discord.gg/PQFavyuUhh" target="_blank" rel="noopener noreferrer" class="contact-item">
+                <span class="discord-icon">💬</span> Discord 技術社群
+            </a>
+            <a href="mailto:r3111453@yahoo.com.tw" class="contact-item">
+                <span class="mail-icon">✉️</span> r3111453@yahoo.com.tw
+            </a>
+        </div>
+        <p style="margin-top: 36px; font-size: 0.85rem; color: #6b7280;">📌 下載方式：加入 Discord 取得最新發行版本，或來信取得下載連結。<br>目前版本 v3.7 (2026-05-21) — 支援可疑連線統計、VirusTotal 快取查詢、增強效能優化。</p>
+    </div>
+
+    <!-- 簡單的FAQ段落 (簡潔) -->
+    <div style="margin: 20px 0 40px; background: rgba(0,0,0,0.2); border-radius: 28px; padding: 28px 24px;">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px;">
+            <div style="flex:1; min-width: 200px;">
+                <div style="font-weight: 700; color: #A5F3FC;">🖥️ 系統需求</div>
+                <p style="font-size: 0.85rem; color: #94a3b8;">Windows 7 / 8 / 10 / 11，建議系統管理員權限執行，以獲得完整網路監控能力。</p>
+            </div>
+            <div style="flex:1; min-width: 200px;">
+                <div style="font-weight: 700; color: #A5F3FC;">🔐 隱私保證</div>
+                <p style="font-size: 0.85rem; color: #94a3b8;">所有分析皆於本地進行，不主動上傳任何資料，只有「可疑連線統計」選擇性查詢VirusTotal IP信譽。</p>
+            </div>
+            <div style="flex:1; min-width: 200px;">
+                <div style="font-weight: 700; color: #A5F3FC;">⚙️ 常見用途</div>
+                <p style="font-size: 0.85rem; color: #94a3b8;">遊戲卡頓分析、阻斷惡意C2連線、揪出後門程式、了解軟體後台行為。</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 網路連線監控工具 — 由 DeepSeek + 小樹苗工作室 維護 | 免費開源精神 | 即時守護您的連線安全
+    </footer>
+</div>
+
+<!-- 簡單平滑滾動 -->
+<script>
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href === "#" || href === "") return;
+            const target = document.querySelector(href);
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>RO 迷藏森林路徑查詢工具</title>
+    <style>
+        body {
+            font-family: Microsoft JhengHei, sans-serif;
+            background: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 20px;
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+        .author {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input {
+            width: 120px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .btn-rules {
+            background: #2196F3;
+        }
+        .btn-rules:hover {
+            background: #0b7dda;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .result label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            resize: vertical;
+            background: #fafafa;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+        }
+        hr {
+            margin: 15px 0;
+            border: none;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🌲 RO 迷藏森林路徑查詢工具</h1>
+    <div class="author">作者：小樹苗工作室</div>
+
+    <div class="input-group">
+        <label>📍 當前房間編號 (1-25)：</label>
+        <input type="number" id="startNum" min="1" max="25" value="13">
+    </div>
+
+    <div class="input-group">
+        <label>🎯 目標房間編號 (1-25)：</label>
+        <input type="number" id="targetNum" min="1" max="25" value="14">
+    </div>
+
+    <button id="findPathBtn">🔍 查詢路徑</button>
+    <button id="showRulesBtn" class="btn-rules">📜 顯示所有規則</button>
+
+    <div class="result">
+        <label>📋 走法結果：</label>
+        <textarea id="pathResult" readonly></textarea>
+    </div>
+
+    <hr>
+    <div class="footer">© 小樹苗工作室 | RO 迷藏森林路徑查詢</div>
+</div>
+
+<script>
+// ========== 迷宮規則 ==========
+const Rules = {
+    "13_右": "25", "25_右": "16", "16_上": "12", "12_右": "22",
+    "22_右": "5", "5_右": "10", "10_左": "12", "12_右": "22",
+    "22_左": "6", "6_左": "18", "18_左": "25", "25_上": "18",
+    "18_上": "23", "23_左": "21", "17_上": "16", "16_下": "3",
+    "3_下": "19", "19_下": "22", "22_下": "12", "12_左": "18",
+    "18_上": "23", "23_上": "8", "8_左": "11", "11_上": "14",
+    "13_左": "7", "21_上": "17", "11_右上": "22", "22_左": "6",
+    "6_左": "18", "14_上": "7", "7_上": "14", "14_左": "2",
+    "2_上": "16", "12_上": "16", "16_左": "25", "13_上": "4",
+    "4_右": "19", "19_上": "3", "3_左": "16", "12_下": "10",
+    "10_右": "5", "5_下": "22", "6_下": "20", "20_右": "15",
+    "15_右": "24", "24_右": "9", "9_右": "1", "1_上": "20",
+    "20_上": "6", "6_上": "22", "7_下": "13", "25_下": "13",
+    "4_左下": "13"
+};
+
+// ========== BFS 最短路徑演算法 ==========
+function BFS(start, target) {
+    let queue = [{ node: start, path: [], visited: new Set() }];
+    queue[0].visited.add(start);
+    
+    for (let i = 0; i < queue.length; i++) {
+        let current = queue[i];
+        
+        if (current.node == target) {
+            if (current.path.length === 0) {
+                return `您已經在目標房間 ${target}！`;
+            }
+            let result = `從 ${start} 到 ${target} 的走法：\n\n`;
+            for (let step of current.path) {
+                result += step + "\n";
+            }
+            return result;
+        }
+        
+        // 找出所有從 current.node 出發的規則
+        for (let [rule, next] of Object.entries(Rules)) {
+            let ruleStart = rule.split("_")[0];
+            if (ruleStart == current.node) {
+                let direction = rule.split("_")[1];
+                if (!current.visited.has(next)) {
+                    let newVisited = new Set(current.visited);
+                    newVisited.add(next);
+                    let newPath = [...current.path];
+                    newPath.push(`${current.node} → ${direction} → ${next}`);
+                    queue.push({
+                        node: next,
+                        path: newPath,
+                        visited: newVisited
+                    });
+                }
+            }
+        }
+    }
+    return "";
+}
+
+// ========== 顯示所有規則 ==========
+function showAllRules() {
+    let rulesByStart = {};
+    
+    for (let [rule, next] of Object.entries(Rules)) {
+        let start = rule.split("_")[0];
+        let direction = rule.split("_")[1];
+        
+        if (!rulesByStart[start]) {
+            rulesByStart[start] = [];
+        }
+        rulesByStart[start].push({ dir: direction, next: next });
+    }
+    
+    let allRules = "=== 迷藏森林所有傳送規則 ===\n\n";
+    
+    for (let i = 1; i <= 25; i++) {
+        let num = i.toString();
+        if (rulesByStart[num]) {
+            allRules += `【房間 ${num}】\n`;
+            for (let item of rulesByStart[num]) {
+                allRules += `  └→ ${item.dir} → ${item.next}\n`;
+            }
+            allRules += "\n";
+        }
+    }
+    
+    allRules += `總共 ${Object.keys(Rules).length} 條規則`;
+    
+    // 在新視窗顯示
+    let win = window.open("", "迷藏森林規則", "width=500,height=600,scrollbars=yes");
+    win.document.write(`<html><head><title>迷藏森林規則</title><style>body{font-family:monospace;padding:20px;}</style></head><body><pre>${allRules}</pre></body></html>`);
+    win.document.close();
+}
+
+// ========== 查詢路徑 ==========
+function findPath() {
+    let startNum = document.getElementById("startNum").value;
+    let targetNum = document.getElementById("targetNum").value;
+    let resultTextarea = document.getElementById("pathResult");
+    
+    if (!startNum || !targetNum) {
+        resultTextarea.value = "請輸入房間編號！";
+        return;
+    }
+    
+    let result = BFS(startNum, targetNum);
+    
+    if (result === "") {
+        resultTextarea.value = `找不到從 ${startNum} 到 ${targetNum} 的路徑！\n可能無法直接到達。`;
+    } else {
+        resultTextarea.value = result;
+    }
+}
+
+// ========== 綁定事件 ==========
+document.getElementById("findPathBtn").addEventListener("click", findPath);
+document.getElementById("showRulesBtn").addEventListener("click", showAllRules);
+
+// 支援 Enter 鍵查詢
+document.getElementById("startNum").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") findPath();
+});
+document.getElementById("targetNum").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") findPath();
+});
+
+// 預設執行一次
+findPath();
+</script>
+</body>
+</html>

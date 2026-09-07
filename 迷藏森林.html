@@ -221,16 +221,16 @@
             <h1>🌲 迷藏森林 · 路徑查詢</h1>
             <span class="rule-count" id="ruleCount">載入中...</span>
         </div>
-        <div class="author">✎ 小樹苗工作室 · 規則版本 2026-09-08 (新增 17上9)</div>
+        <div class="author">✎ 小樹苗工作室 · 規則版本 2026-09-08 (移除 20下8，確認 20下僅到1)</div>
 
         <div class="input-row">
             <div class="input-group">
                 <label>📍 當前房間 (1-25)</label>
-                <input type="number" id="startNum" min="1" max="25" value="17">
+                <input type="number" id="startNum" min="1" max="25" value="20">
             </div>
             <div class="input-group">
                 <label>🎯 目標房間 (1-25)</label>
-                <input type="number" id="targetNum" min="1" max="25" value="9">
+                <input type="number" id="targetNum" min="1" max="25" value="1">
             </div>
         </div>
 
@@ -256,7 +256,7 @@
 
     <script>
         // ================================================================
-        //  1. 迷宮規則（完整收錄，新增 17上9）
+        //  1. 迷宮規則（完整收錄，移除 20下8）
         // ================================================================
         const RAW_RULES = [
             // ---- 基礎規則（含修正 12下10） ----
@@ -280,8 +280,8 @@
             "21上17",
             "17上22",
 
-            // ---- 最新補充（之前批次） ----
-            "1上20", "20下8", "9右1", "2上9",
+            // ---- 最新補充（移除 20下8） ----
+            "1上20", "9右1", "2上9",
             "17上8", "17上16", "20上6", "16下3",
             "3左16", "3下19", "19上3", "13上4",
             "4左13", "4右20", "4右19", "19下22",
@@ -290,9 +290,8 @@
             "8右25", "25左8",
             "8上23", "23上8",
             "11下8",
-
-            // ---- 本次新增 ----
-            "17上9"     // 新增，使17上共有9,8,22,16四個目標，標記為隨機
+            "17上9"
+            // 注意：20下8 已被移除，20下僅有1（原規則）
         ];
 
         // 建立規則物件，同時記錄重複（隨機傳送）
@@ -301,7 +300,6 @@
             const duplicates = new Set();
 
             for (const item of rawArray) {
-                // 忽略無效項目（如 "66上22" 這種筆誤）
                 const match = item.match(/^(\d{1,2})([上下左右])(\d{1,2})$/);
                 if (!match) continue;
                 const [, from, dir, to] = match;
@@ -568,7 +566,7 @@
         document.getElementById("startNum").addEventListener("keypress", (e) => { if (e.key === "Enter") findPath(); });
         document.getElementById("targetNum").addEventListener("keypress", (e) => { if (e.key === "Enter") findPath(); });
 
-        // 自動執行一次（示範 17→9）
+        // 自動執行一次（示範 20→1）
         findPath();
 
         console.log("🌲 迷藏森林規則已載入，共 " + Object.keys(Rules).length + " 條規則");

@@ -221,16 +221,16 @@
             <h1>🌲 迷藏森林 · 路徑查詢</h1>
             <span class="rule-count" id="ruleCount">載入中...</span>
         </div>
-        <div class="author">✎ 小樹苗工作室 · 規則版本 2026 (修正 12下10)</div>
+        <div class="author">✎ 小樹苗工作室 · 規則版本 2026 (新增 18下12)</div>
 
         <div class="input-row">
             <div class="input-group">
                 <label>📍 當前房間 (1-25)</label>
-                <input type="number" id="startNum" min="1" max="25" value="12">
+                <input type="number" id="startNum" min="1" max="25" value="18">
             </div>
             <div class="input-group">
                 <label>🎯 目標房間 (1-25)</label>
-                <input type="number" id="targetNum" min="1" max="25" value="10">
+                <input type="number" id="targetNum" min="1" max="25" value="12">
             </div>
         </div>
 
@@ -256,7 +256,7 @@
 
     <script>
         // ================================================================
-        //  1. 迷宮規則（修正 12下15 → 12下10）
+        //  1. 迷宮規則（新增 18下12）
         // ================================================================
         const RAW_RULES = [
             // 原始規則 (25條) 已修改 "12下15" 為 "12下10"
@@ -277,7 +277,10 @@
             "15右24",
             "24右22",
             "21上17",
-            "17上22"
+            "17上22",
+            // 最新新增
+            "18下12"    // 新增，使得18可以下到12
+            // 12左18 已存在於原始規則
         ];
 
         // 建立規則物件，同時記錄重複（隨機傳送）
@@ -552,7 +555,7 @@
         document.getElementById("startNum").addEventListener("keypress", (e) => { if (e.key === "Enter") findPath(); });
         document.getElementById("targetNum").addEventListener("keypress", (e) => { if (e.key === "Enter") findPath(); });
 
-        // 自動執行一次（示範 12→10）
+        // 自動執行一次（示範 18→12）
         findPath();
 
         console.log("🌲 迷藏森林規則已載入，共 " + Object.keys(Rules).length + " 條規則");

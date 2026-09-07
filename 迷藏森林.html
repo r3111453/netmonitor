@@ -1,257 +1,562 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <title>RO 迷藏森林路徑查詢工具</title>
     <style>
         body {
-            font-family: Microsoft JhengHei, sans-serif;
+            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
             background: #f0f0f0;
             margin: 0;
             padding: 20px;
         }
         .container {
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 24px 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
         h1 {
-            font-size: 20px;
-            margin: 0 0 5px 0;
-            color: #333;
+            font-size: 22px;
+            margin: 0 0 2px 0;
+            color: #2c3e50;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
         }
         .author {
-            font-size: 12px;
+            font-size: 13px;
             color: #999;
-            margin-bottom: 20px;
-            text-align: center;
+        }
+        .rule-count {
+            font-size: 13px;
+            color: #7f8c8d;
+            background: #f5f5f5;
+            padding: 2px 12px;
+            border-radius: 20px;
         }
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 14px;
+        }
+        .input-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .input-row .input-group {
+            flex: 1;
+            min-width: 140px;
+            margin-bottom: 0;
         }
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 14px;
         }
         input {
-            width: 120px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
+            width: 100%;
+            max-width: 140px;
+            padding: 8px 12px;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        input:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 6px 0 8px 0;
         }
         button {
-            background: #4CAF50;
-            color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: 10px 22px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
-            margin-right: 10px;
-            margin-bottom: 10px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-        button:hover {
-            background: #45a049;
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
         }
-        .btn-rules {
+        .btn-primary:hover {
+            background: #43a047;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        .btn-info {
             background: #2196F3;
+            color: white;
         }
-        .btn-rules:hover {
-            background: #0b7dda;
+        .btn-info:hover {
+            background: #1e88e5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+        .btn-secondary:hover {
+            background: #dde1e3;
+        }
+        .btn-copy-dir {
+            background: #ff9800;
+            color: white;
+        }
+        .btn-copy-dir:hover {
+            background: #f57c00;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
         }
         .result {
-            margin-top: 20px;
+            margin-top: 18px;
         }
-        .result label {
-            font-weight: bold;
-            margin-bottom: 5px;
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .result-header label {
+            font-weight: 600;
+            color: #34495e;
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+        .result-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .result-actions button {
+            padding: 4px 14px;
+            font-size: 12px;
+            border-radius: 4px;
         }
         textarea {
             width: 100%;
-            height: 200px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 12px;
+            height: 220px;
+            padding: 12px 14px;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
             resize: vertical;
-            background: #fafafa;
+            background: #fafbfc;
+            line-height: 1.7;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        textarea:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
         }
         .footer {
             margin-top: 20px;
             text-align: center;
             font-size: 12px;
-            color: #999;
+            color: #bbb;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 16px;
         }
-        hr {
-            margin: 15px 0;
-            border: none;
-            border-top: 1px solid #eee;
+        @media (max-width: 500px) {
+            .container {
+                padding: 16px;
+            }
+            .input-row {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .input-row .input-group {
+                min-width: 100%;
+            }
+            input {
+                max-width: 100%;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+            button {
+                justify-content: center;
+            }
+            .result-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .result-actions {
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>🌲 RO 迷藏森林路徑查詢工具</h1>
-    <div class="author">作者：小樹苗工作室</div>
+    <div class="container">
+        <div class="subtitle">
+            <h1>🌲 迷藏森林 · 路徑查詢</h1>
+            <span class="rule-count" id="ruleCount">載入中...</span>
+        </div>
+        <div class="author">✎ 小樹苗工作室 · 規則版本 2026 (新增複製方位)</div>
 
-    <div class="input-group">
-        <label>📍 當前房間編號 (1-25)：</label>
-        <input type="number" id="startNum" min="1" max="25" value="13">
+        <div class="input-row">
+            <div class="input-group">
+                <label>📍 當前房間 (1-25)</label>
+                <input type="number" id="startNum" min="1" max="25" value="13">
+            </div>
+            <div class="input-group">
+                <label>🎯 目標房間 (1-25)</label>
+                <input type="number" id="targetNum" min="1" max="25" value="1">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button id="findPathBtn" class="btn-primary">🔍 查詢路徑</button>
+            <button id="showRulesBtn" class="btn-info">📜 顯示所有規則</button>
+            <button id="clearBtn" class="btn-secondary">🗑 清空</button>
+        </div>
+
+        <div class="result">
+            <div class="result-header">
+                <label>📋 走法結果</label>
+                <div class="result-actions">
+                    <button id="copyBtn" class="btn-secondary">📄 複製</button>
+                    <button id="copyDirBtn" class="btn-copy-dir">🧭 複製方位</button>
+                </div>
+            </div>
+            <textarea id="pathResult" readonly placeholder="輸入起點與目標後點擊「查詢路徑」"></textarea>
+        </div>
+
+        <div class="footer">© 小樹苗工作室 · RO 迷藏森林路徑查詢 · 方位複製僅取方向序列</div>
     </div>
 
-    <div class="input-group">
-        <label>🎯 目標房間編號 (1-25)：</label>
-        <input type="number" id="targetNum" min="1" max="25" value="14">
-    </div>
+    <script>
+        // ================================================================
+        //  1. 迷宮規則（完整收錄所有已知規則）
+        // ================================================================
+        const RAW_RULES = [
+            // 原始規則 (25條)
+            "13右25", "25右16", "16上12", "12上16", "12右22",
+            "22右5", "5右10", "10右5", "5下22", "22下12",
+            "12下15", "15右5", "22左6", "6下20", "20右15",
+            "15左20", "20下1", "1左9", "9下17", "17下21",
+            "21下23", "23右18", "18右6", "6上22", "12左18",
+            // 補充規則
+            "10左12",
+            "16左25",
+            "25下13",
+            "8左11", "11上14", "14上7", "7下13",
+            "25左8", "8右25",
+            "25上18", "18左25", "8上23", "23上8", "11下8", "18上23", "23左21",
+            "7上14", "13左7", "14左2", "2上22",
+            "15右24",
+            "24右22"
+            // 22左6 已存在
+        ];
 
-    <button id="findPathBtn">🔍 查詢路徑</button>
-    <button id="showRulesBtn" class="btn-rules">📜 顯示所有規則</button>
+        // 建立規則物件，同時記錄重複（隨機傳送）
+        function buildRules(rawArray) {
+            const map = new Map();
+            const duplicates = new Set();
 
-    <div class="result">
-        <label>📋 走法結果：</label>
-        <textarea id="pathResult" readonly></textarea>
-    </div>
-
-    <hr>
-    <div class="footer">© 小樹苗工作室 | RO 迷藏森林路徑查詢</div>
-</div>
-
-<script>
-// ========== 迷宮規則 ==========
-const Rules = {
-    "13_右": "25", "25_右": "16", "16_上": "12", "12_右": "22",
-    "22_右": "5", "5_右": "10", "10_左": "12", "12_右": "22",
-    "22_左": "6", "6_左": "18", "18_左": "25", "25_上": "18",
-    "18_上": "23", "23_左": "21", "17_上": "16", "16_下": "3",
-    "3_下": "19", "19_下": "22", "22_下": "12", "12_左": "18",
-    "18_上": "23", "23_上": "8", "8_左": "11", "11_上": "14",
-    "13_左": "7", "21_上": "17", "11_右上": "22", "22_左": "6",
-    "6_左": "18", "14_上": "7", "7_上": "14", "14_左": "2",
-    "2_上": "16", "12_上": "16", "16_左": "25", "13_上": "4",
-    "4_右": "19", "19_上": "3", "3_左": "16", "12_下": "10",
-    "10_右": "5", "5_下": "22", "6_下": "20", "20_右": "15",
-    "15_右": "24", "24_右": "9", "9_右": "1", "1_上": "20",
-    "20_上": "6", "6_上": "22", "7_下": "13", "25_下": "13",
-    "4_左下": "13"
-};
-
-// ========== BFS 最短路徑演算法 ==========
-function BFS(start, target) {
-    let queue = [{ node: start, path: [], visited: new Set() }];
-    queue[0].visited.add(start);
-    
-    for (let i = 0; i < queue.length; i++) {
-        let current = queue[i];
-        
-        if (current.node == target) {
-            if (current.path.length === 0) {
-                return `您已經在目標房間 ${target}！`;
-            }
-            let result = `從 ${start} 到 ${target} 的走法：\n\n`;
-            for (let step of current.path) {
-                result += step + "\n";
-            }
-            return result;
-        }
-        
-        // 找出所有從 current.node 出發的規則
-        for (let [rule, next] of Object.entries(Rules)) {
-            let ruleStart = rule.split("_")[0];
-            if (ruleStart == current.node) {
-                let direction = rule.split("_")[1];
-                if (!current.visited.has(next)) {
-                    let newVisited = new Set(current.visited);
-                    newVisited.add(next);
-                    let newPath = [...current.path];
-                    newPath.push(`${current.node} → ${direction} → ${next}`);
-                    queue.push({
-                        node: next,
-                        path: newPath,
-                        visited: newVisited
-                    });
+            for (const item of rawArray) {
+                const match = item.match(/^(\d+)([上下左右])(\d+)$/);
+                if (!match) continue;
+                const [, from, dir, to] = match;
+                const key = from + "_" + dir;
+                if (!map.has(key)) {
+                    map.set(key, new Set());
+                }
+                const set = map.get(key);
+                const oldSize = set.size;
+                set.add(to);
+                if (set.size > oldSize && set.size > 1) {
+                    duplicates.add(key);
                 }
             }
-        }
-    }
-    return "";
-}
 
-// ========== 顯示所有規則 ==========
-function showAllRules() {
-    let rulesByStart = {};
-    
-    for (let [rule, next] of Object.entries(Rules)) {
-        let start = rule.split("_")[0];
-        let direction = rule.split("_")[1];
-        
-        if (!rulesByStart[start]) {
-            rulesByStart[start] = [];
-        }
-        rulesByStart[start].push({ dir: direction, next: next });
-    }
-    
-    let allRules = "=== 迷藏森林所有傳送規則 ===\n\n";
-    
-    for (let i = 1; i <= 25; i++) {
-        let num = i.toString();
-        if (rulesByStart[num]) {
-            allRules += `【房間 ${num}】\n`;
-            for (let item of rulesByStart[num]) {
-                allRules += `  └→ ${item.dir} → ${item.next}\n`;
+            const rules = {};
+            const randomKeys = new Set();
+            for (const [key, targets] of map) {
+                const arr = Array.from(targets);
+                rules[key] = arr;
+                if (arr.length > 1 || duplicates.has(key)) {
+                    randomKeys.add(key);
+                }
             }
-            allRules += "\n";
+
+            return { rules, randomKeys };
         }
-    }
-    
-    allRules += `總共 ${Object.keys(Rules).length} 條規則`;
-    
-    // 在新視窗顯示
-    let win = window.open("", "迷藏森林規則", "width=500,height=600,scrollbars=yes");
-    win.document.write(`<html><head><title>迷藏森林規則</title><style>body{font-family:monospace;padding:20px;}</style></head><body><pre>${allRules}</pre></body></html>`);
-    win.document.close();
-}
 
-// ========== 查詢路徑 ==========
-function findPath() {
-    let startNum = document.getElementById("startNum").value;
-    let targetNum = document.getElementById("targetNum").value;
-    let resultTextarea = document.getElementById("pathResult");
-    
-    if (!startNum || !targetNum) {
-        resultTextarea.value = "請輸入房間編號！";
-        return;
-    }
-    
-    let result = BFS(startNum, targetNum);
-    
-    if (result === "") {
-        resultTextarea.value = `找不到從 ${startNum} 到 ${targetNum} 的路徑！\n可能無法直接到達。`;
-    } else {
-        resultTextarea.value = result;
-    }
-}
+        const { rules: Rules, randomKeys: RandomKeys } = buildRules(RAW_RULES);
 
-// ========== 綁定事件 ==========
-document.getElementById("findPathBtn").addEventListener("click", findPath);
-document.getElementById("showRulesBtn").addEventListener("click", showAllRules);
+        document.getElementById("ruleCount").textContent =
+            "📦 " + Object.keys(Rules).length + " 條規則" +
+            (RandomKeys.size > 0 ? " · ⚡ " + RandomKeys.size + " 組隨機" : "");
 
-// 支援 Enter 鍵查詢
-document.getElementById("startNum").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") findPath();
-});
-document.getElementById("targetNum").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") findPath();
-});
+        // ================================================================
+        //  2. BFS 最短路徑（返回 { text, directions }）
+        // ================================================================
+        function BFS(start, target) {
+            start = String(start);
+            target = String(target);
 
-// 預設執行一次
-findPath();
-</script>
+            if (start === target) {
+                return {
+                    text: `✅ 您已經在目標房間 ${target} ！`,
+                    directions: []
+                };
+            }
+
+            let queue = [{
+                node: start,
+                path: [],        // 步驟文字
+                dirs: [],        // 純方向
+                visited: new Set([start])
+            }];
+
+            for (let i = 0; i < queue.length; i++) {
+                const cur = queue[i];
+
+                const candidates = [];
+                for (const [ruleKey, targets] of Object.entries(Rules)) {
+                    const parts = ruleKey.split("_");
+                    if (parts[0] === cur.node) {
+                        const dir = parts[1];
+                        const isRandom = RandomKeys.has(ruleKey);
+                        candidates.push({
+                            direction: dir,
+                            targets: targets,
+                            isRandom: isRandom
+                        });
+                    }
+                }
+
+                for (const cand of candidates) {
+                    for (const nextNode of cand.targets) {
+                        if (cur.visited.has(nextNode)) continue;
+
+                        const newVisited = new Set(cur.visited);
+                        newVisited.add(nextNode);
+                        const newPath = [...cur.path];
+                        const newDirs = [...cur.dirs];
+
+                        let stepLabel = `${cur.node} → ${cand.direction} → ${nextNode}`;
+                        if (cand.isRandom) {
+                            const allTargets = cand.targets.join(" / ");
+                            stepLabel = `${cur.node} → ${cand.direction} → (🎲 隨機) [${allTargets}]   → 實際抵達 ${nextNode}`;
+                        }
+                        newPath.push(stepLabel);
+                        newDirs.push(cand.direction); // 存純方向
+
+                        if (nextNode === target) {
+                            // 組裝結果文字
+                            let result = `📍 從 ${start} 到 ${target} 的最短路徑（${newPath.length} 步）\n`;
+                            result += "━".repeat(40) + "\n";
+                            for (let idx = 0; idx < newPath.length; idx++) {
+                                const prefix = (idx + 1).toString().padStart(2, " ");
+                                result += `${prefix}. ${newPath[idx]}\n`;
+                            }
+                            const hasRandom = newPath.some(p => p.includes("🎲"));
+                            if (hasRandom) {
+                                result += "\n⚠️ 此路徑包含隨機傳送，實際結果可能因隨機而異。";
+                            }
+                            return {
+                                text: result,
+                                directions: newDirs
+                            };
+                        }
+
+                        queue.push({
+                            node: nextNode,
+                            path: newPath,
+                            dirs: newDirs,
+                            visited: newVisited
+                        });
+                    }
+                }
+            }
+
+            return {
+                text: `❌ 找不到從 ${start} 到 ${target} 的路徑！\n可能無法直接到達，或目標房間不在規則中。`,
+                directions: []
+            };
+        }
+
+        // ================================================================
+        //  3. 顯示所有規則（含隨機標示）
+        // ================================================================
+        function showAllRules() {
+            const groups = {};
+            for (const [key, targets] of Object.entries(Rules)) {
+                const [from, dir] = key.split("_");
+                if (!groups[from]) groups[from] = [];
+                const isRandom = RandomKeys.has(key);
+                groups[from].push({ dir, targets, isRandom });
+            }
+
+            let output = "╔═══════════════════════════════════════════╗\n";
+            output += "║     🌲 迷藏森林 · 完整傳送規則          ║\n";
+            output += "╚═══════════════════════════════════════════╝\n\n";
+
+            const sortedRooms = Object.keys(groups).sort((a, b) => Number(a) - Number(b));
+            let totalRules = 0;
+            let totalRandom = 0;
+
+            for (const room of sortedRooms) {
+                const items = groups[room];
+                output += `【房間 ${room}】`;
+                if (items.some(i => i.isRandom)) {
+                    output += `  ⚡ 含隨機傳送`;
+                }
+                output += "\n";
+                for (const item of items) {
+                    const targetStr = item.targets.join(" / ");
+                    const randomTag = item.isRandom ? "  🎲 隨機" : "";
+                    output += `  └─ ${item.dir} → ${targetStr}${randomTag}\n`;
+                    totalRules += item.targets.length;
+                    if (item.isRandom) totalRandom += item.targets.length - 1;
+                }
+                output += "\n";
+            }
+
+            output += `═ 總計 ${totalRules} 條傳送規則`;
+            if (totalRandom > 0) {
+                output += `，其中 ${totalRandom} 條為隨機分支`;
+            }
+            output += `\n═ 隨機傳送組數：${RandomKeys.size}`;
+
+            const win = window.open("", "迷藏森林規則", "width=580,height=650,scrollbars=yes");
+            if (!win) {
+                alert("請允許彈出視窗以查看完整規則。");
+                return;
+            }
+            win.document.write(`
+                <html><head>
+                    <title>迷藏森林 · 規則一覽</title>
+                    <style>
+                        body { font-family: "Consolas","Courier New",monospace; padding:24px; background:#f8f9fa; }
+                        pre { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.06); white-space:pre-wrap; word-break:break-all; font-size:13px; line-height:1.7; }
+                    </style>
+                </head><body>
+                    <pre>${output}</pre>
+                    <p style="color:#999;font-size:12px;text-align:center;">📌 同一房間＋同一方向對應多個目標 → 隨機傳送</p>
+                </body></html>
+            `);
+            win.document.close();
+        }
+
+        // ================================================================
+        //  4. UI 綁定
+        // ================================================================
+        let lastDirections = []; // 儲存最近一次查詢的方向序列
+
+        function findPath() {
+            const start = document.getElementById("startNum").value.trim();
+            const target = document.getElementById("targetNum").value.trim();
+            const textarea = document.getElementById("pathResult");
+
+            if (!start || !target) {
+                textarea.value = "⚠️ 請輸入有效的房間編號（1-25）";
+                lastDirections = [];
+                return;
+            }
+            if (isNaN(start) || isNaN(target) || Number(start) < 1 || Number(start) > 25 ||
+                Number(target) < 1 || Number(target) > 25) {
+                textarea.value = "⚠️ 房間編號須在 1 ~ 25 之間";
+                lastDirections = [];
+                return;
+            }
+
+            const result = BFS(start, target);
+            textarea.value = result.text;
+            lastDirections = result.directions;
+        }
+
+        function clearResult() {
+            document.getElementById("pathResult").value = "";
+            lastDirections = [];
+        }
+
+        function copyResult() {
+            const textarea = document.getElementById("pathResult");
+            if (!textarea.value) {
+                alert("沒有內容可複製");
+                return;
+            }
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                const btn = document.getElementById("copyBtn");
+                const orig = btn.textContent;
+                btn.textContent = "✅ 已複製";
+                setTimeout(() => { btn.textContent = orig; }, 1500);
+            }).catch(() => {
+                textarea.select();
+                document.execCommand("copy");
+                alert("已複製到剪貼簿");
+            });
+        }
+
+        function copyDirection() {
+            if (lastDirections.length === 0) {
+                alert("沒有方位可複製，請先查詢有效路徑。");
+                return;
+            }
+            const dirStr = lastDirections.join(" ");
+            navigator.clipboard.writeText(dirStr).then(() => {
+                const btn = document.getElementById("copyDirBtn");
+                const orig = btn.textContent;
+                btn.textContent = "✅ 已複製方位";
+                setTimeout(() => { btn.textContent = orig; }, 1500);
+            }).catch(() => {
+                // fallback
+                const dummy = document.createElement("textarea");
+                dummy.value = dirStr;
+                document.body.appendChild(dummy);
+                dummy.select();
+                document.execCommand("copy");
+                document.body.removeChild(dummy);
+                alert("已複製方位序列：" + dirStr);
+            });
+        }
+
+        document.getElementById("findPathBtn").addEventListener("click", findPath);
+        document.getElementById("showRulesBtn").addEventListener("click", showAllRules);
+        document.getElementById("clearBtn").addEventListener("click", clearResult);
+        document.getElementById("copyBtn").addEventListener("click", copyResult);
+        document.getElementById("copyDirBtn").addEventListener("click", copyDirection);
+
+        document.getElementById("startNum").addEventListener("keypress", (e) => { if (e.key === "Enter") findPath(); });
+        document.getElementById("targetNum").addEventListener("keypress", (e) => { if (e.key === "Enter") findPath(); });
+
+        // 自動執行一次（示範 13→1）
+        findPath();
+
+        console.log("🌲 迷藏森林規則已載入，共 " + Object.keys(Rules).length + " 條規則");
+        console.log("🎲 隨機傳送組:", Array.from(RandomKeys));
+    </script>
 </body>
 </html>

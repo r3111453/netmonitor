@@ -221,16 +221,16 @@
             <h1>🌲 迷藏森林 · 路徑查詢</h1>
             <span class="rule-count" id="ruleCount">載入中...</span>
         </div>
-        <div class="author">✎ 小樹苗工作室 · 規則版本 2026 (新增 18下12)</div>
+        <div class="author">✎ 小樹苗工作室 · 規則版本 2026 (全面更新，含所有最新規則)</div>
 
         <div class="input-row">
             <div class="input-group">
                 <label>📍 當前房間 (1-25)</label>
-                <input type="number" id="startNum" min="1" max="25" value="18">
+                <input type="number" id="startNum" min="1" max="25" value="13">
             </div>
             <div class="input-group">
                 <label>🎯 目標房間 (1-25)</label>
-                <input type="number" id="targetNum" min="1" max="25" value="12">
+                <input type="number" id="targetNum" min="1" max="25" value="1">
             </div>
         </div>
 
@@ -256,17 +256,19 @@
 
     <script>
         // ================================================================
-        //  1. 迷宮規則（新增 18下12）
+        //  1. 迷宮規則（完整收錄所有已知規則，包含最新補充）
         // ================================================================
         const RAW_RULES = [
-            // 原始規則 (25條) 已修改 "12下15" 為 "12下10"
+            // ----- 原始規則 (25條) -----
             "13右25", "25右16", "16上12", "12上16", "12右22",
             "22右5", "5右10", "10右5", "5下22", "22下12",
-            "12下10",   // 原為 "12下15" 已更正
+            // 已修正：12下15 → 12下10
+            "12下10",  // 原為 "12下15"
             "15右5", "22左6", "6下20", "20右15",
             "15左20", "20下1", "1左9", "9下17", "17下21",
             "21下23", "23右18", "18右6", "6上22", "12左18",
-            // 補充規則
+
+            // ----- 前期補充 -----
             "10左12",
             "16左25",
             "25下13",
@@ -278,9 +280,25 @@
             "24右22",
             "21上17",
             "17上22",
-            // 最新新增
-            "18下12"    // 新增，使得18可以下到12
-            // 12左18 已存在於原始規則
+
+            // ----- 本次新增 (2026-09-08) -----
+            "1上20",      // 反向 20下1
+            "9右1",       // 反向 1左9
+            "2上9",       // 新增
+            "17上8",      // 新增
+            "17上16",     // 新增
+            "20上6",      // 反向 6下20
+            "16下3",      // 新增
+            // 以下規則已存在，無需重複添加（保留以明確）：
+            // "20下1" 已存在
+            // "1左9" 已存在
+            // "22左6" 已存在
+            // "9下17" 已存在
+            // "8左11" 已存在
+            // "6上22" 已存在
+            // "22下12" 已存在
+            // "12上16" 已存在
+            // "17上22" 已存在
         ];
 
         // 建立規則物件，同時記錄重複（隨機傳送）
@@ -339,8 +357,8 @@
 
             let queue = [{
                 node: start,
-                path: [],
-                dirs: [],
+                path: [],        // 步驟文字
+                dirs: [],        // 純方向
                 visited: new Set([start])
             }];
 
@@ -376,9 +394,10 @@
                             stepLabel = `${cur.node} → ${cand.direction} → (🎲 隨機) [${allTargets}]   → 實際抵達 ${nextNode}`;
                         }
                         newPath.push(stepLabel);
-                        newDirs.push(cand.direction);
+                        newDirs.push(cand.direction); // 存純方向
 
                         if (nextNode === target) {
+                            // 組裝結果文字
                             let result = `📍 從 ${start} 到 ${target} 的最短路徑（${newPath.length} 步）\n`;
                             result += "━".repeat(40) + "\n";
                             for (let idx = 0; idx < newPath.length; idx++) {
@@ -477,7 +496,7 @@
         // ================================================================
         //  4. UI 綁定
         // ================================================================
-        let lastDirections = [];
+        let lastDirections = []; // 儲存最近一次查詢的方向序列
 
         function findPath() {
             const start = document.getElementById("startNum").value.trim();
@@ -536,6 +555,7 @@
                 btn.textContent = "✅ 已複製方位";
                 setTimeout(() => { btn.textContent = orig; }, 1500);
             }).catch(() => {
+                // fallback
                 const dummy = document.createElement("textarea");
                 dummy.value = dirStr;
                 document.body.appendChild(dummy);
@@ -555,7 +575,7 @@
         document.getElementById("startNum").addEventListener("keypress", (e) => { if (e.key === "Enter") findPath(); });
         document.getElementById("targetNum").addEventListener("keypress", (e) => { if (e.key === "Enter") findPath(); });
 
-        // 自動執行一次（示範 18→12）
+        // 自動執行一次（示範 13→1）
         findPath();
 
         console.log("🌲 迷藏森林規則已載入，共 " + Object.keys(Rules).length + " 條規則");

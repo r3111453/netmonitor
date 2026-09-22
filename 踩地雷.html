@@ -787,7 +787,6 @@ function checkWin() {
     const completedLevel = currentLevel;
     const completedTime = elapsedTime;
 
-    // ★ 立刻進入下一關（重置狀態），避免「關閉後回到過關前」
     currentLevel++;
     MINES = Math.min(MINES + 1, ROWS * COLS - 9);
 
@@ -809,14 +808,11 @@ function checkWin() {
     boomR = -1;
     boomC = -1;
 
-    // ★ 立刻存檔（記錄「已進入第 N+1 關，尚未開始」）
     saveGame();
 
-    // 顯示過關訊息
     document.getElementById('statusTxt').textContent =
       '🎉 第 ' + completedLevel + ' 關完成！用時 ' + completedTime.toFixed(1) + ' 秒，進入第 ' + currentLevel + ' 關...';
 
-    // 800ms 後更新畫面
     setTimeout(() => {
       document.getElementById('statusTxt').textContent = '第 ' + currentLevel + ' 關（' + MINES + ' 顆雷）';
       document.getElementById('timeTxt').textContent = '時間：0.0 秒';
@@ -967,3 +963,81 @@ function exportBoard() {
   for (let r = 0; r < ROWS; r++) {
     output += String(r + 1).padStart(2, ' ') + ' ';
     for (let c = 0; c < COLS; c++) {
+      const s = state[r][c];
+      if (s === 'hidden') {
+        output += ' .';
+      } else if (s === 'flagged') {
+        output += ' F';
+      } else if (s === 'opened') {
+        if (board[r][c] === 1) {
+          output += ' X';
+        } else {
+          const n = countMines(r, c);
+          output += n === 0 ? ' _' : ' ' + n;
+        }
+      }
+    }
+    output += '\n';
+  }
+
+  output += '\n請幫我分析這盤，告訴我下一步該點哪一格（用「列,欄」表示），並說明推理過程。\n';
+
+  const blob = new Blob([output], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'minesweeper_board.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+
+  navigator.clipboard.writeText(output).then(() => {
+    showToast('盤面已匯出，並複製到剪貼簿！');
+  }).catch(() => {
+    showToast('盤面已匯出成檔案！');
+  });
+}
+
+// ==================== Toast ====================
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    t.style.display = 'none';
+  }, 2500);
+}
+
+// ==================== 鍵盤 ====================
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key.toLowerCase() === 'e') {
+    e.preventDefault();
+    exportBoard();
+  }
+});
+
+// ==================== 啟動 ====================
+window.addEventListener('load', () => {
+  board = [];
+  state = [];
+  for (let r = 0; r < ROWS; r++) {
+    state[r] = [];
+    for (let c = 0; c < COLS; c++) {
+      state[r][c] = 'hidden';
+    }
+  }
+
+  renderBoard();
+  updateInfo();
+  updateMineCounter();
+  updateBestDisplay();
+  checkLoadSave();
+});
+
+window.addEventListener('beforeunload', () => {
+  saveGame();
+});
+</script>
+</body>
+</html>
